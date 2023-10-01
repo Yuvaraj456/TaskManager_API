@@ -83,5 +83,61 @@ namespace TaskManager.Controllers
 
             return Ok(id);
         }
+
+        [HttpGet]
+        [Route("[action]/{searchBy}/{searchString}")]
+        public async Task<List<Project>> Search([FromRoute] string? searchBy, [FromRoute] string? searchString)
+        {
+            if (searchBy == null || searchString == null)
+                return null;
+
+            //List<Project>? searchResult = (searchBy) switch
+            //{
+            //    "ProjectId" => await _db.Projects.Where(x => x.ProjectId.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)).ToListAsync(),
+
+            //    "ProjectName" => await _db.Projects.Where(x => x.ProjectName.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)).ToListAsync(),
+
+            //    "DateOfStart" => await _db.Projects.Where(x => x.DateOfStart.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)).ToListAsync(),
+
+            //    "TeamSize" => await _db.Projects.Where(x => x.TeamSize.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase)).ToListAsync(),
+            //    _ => null
+            //};
+
+            List<Project>? searchResult = null;
+             switch(searchBy)
+            {
+                case "ProjectId":
+                    searchResult = await _db.Projects.Where(x => x.ProjectId.ToString().Contains(searchString)).ToListAsync();
+                        break;
+
+                case "ProjectName":
+                    searchResult = await _db.Projects.Where(x => x.ProjectName.Contains(searchString)).ToListAsync();
+                        break;
+
+                case "DateOfStart":
+                    searchResult = await _db.Projects.Where(x => x.DateOfStart.ToString().Contains(searchString)).ToListAsync();
+                        break;
+
+                case "TeamSize":
+                    searchResult = await _db.Projects.Where(x => x.TeamSize.ToString().Contains(searchString)).ToListAsync();
+                        break;
+
+                default:                    
+                    break;
+            }
+
+
+
+
+            if (searchResult != null)
+            {
+                return searchResult;
+            }
+            else
+            {
+                return null;
+            }
+            
+        }
     }
 }
