@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskManager.DatabaseContext;
-using TaskManager.Models;
+using TaskManager_Core.Domain.Entities;
 
 namespace TaskManager.Controllers
 {
@@ -85,11 +85,14 @@ namespace TaskManager.Controllers
         }
 
         [HttpGet]
-        [Route("[action]/{searchBy}/{searchString}")]
+        [Route("[action]/{searchBy}/{searchString?}")]
         public async Task<List<Project>> Search([FromRoute] string? searchBy, [FromRoute] string? searchString)
         {
-            if (searchBy == null || searchString == null)
+            if (searchBy == null)
                 return null;
+
+            if (searchString == null)
+                return await Get();
 
             //List<Project>? searchResult = (searchBy) switch
             //{

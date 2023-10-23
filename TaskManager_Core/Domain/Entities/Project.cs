@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TaskManager.Models
+namespace TaskManager_Core.Domain.Entities
 {
     public class Project
     {
@@ -13,5 +13,5 @@ namespace TaskManager.Models
 
         public int TeamSize { get; set; }
     }
-    
+
 }
