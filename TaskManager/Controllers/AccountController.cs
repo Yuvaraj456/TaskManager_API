@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Identity;
@@ -10,6 +11,7 @@ namespace TaskManager_UI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class AccountController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -24,7 +26,7 @@ namespace TaskManager_UI.Controllers
         public async Task<IActionResult> Authenticate([FromBody]LoginViewModel login)
         {
             var user = await _userService.Authenticate(login);
-
+             
             if(user == null)
             {
                 return BadRequest("User Name or Password is incorrect");

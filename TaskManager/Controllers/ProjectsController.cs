@@ -12,12 +12,13 @@ namespace TaskManager.Controllers
     {
         private readonly ApplicationDbContext _db;
 
-        public ProjectsController(ApplicationDbContext db) {
+        public ProjectsController(ApplicationDbContext db)
+        {
 
-            _db=db;
+            _db = db;
         }
 
-        
+
         [HttpGet]
         [Route("[action]")]
         public async Task<List<Project>> Get()
@@ -28,7 +29,7 @@ namespace TaskManager.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<IActionResult> Post([FromBody]Project project)
+        public async Task<IActionResult> Post([FromBody] Project project)
         {
             if (project == null)
                 return BadRequest();
@@ -45,9 +46,9 @@ namespace TaskManager.Controllers
             if (project == null)
                 return BadRequest();
 
-            Project? exist = await _db.Projects.Where(x=>x.ProjectId == project.ProjectId).FirstOrDefaultAsync();
+            Project? exist = await _db.Projects.Where(x => x.ProjectId == project.ProjectId).FirstOrDefaultAsync();
 
-            if(exist != null)
+            if (exist != null)
             {
                 exist.ProjectName = project.ProjectName;
                 exist.DateOfStart = project.DateOfStart;
@@ -64,16 +65,16 @@ namespace TaskManager.Controllers
 
         [HttpDelete]
         [Route("[action]")]
-        public async Task<IActionResult> Delete([FromQuery]int? id)
+        public async Task<IActionResult> Delete([FromQuery] int? id)
         {
-            if(id == null)
+            if (id == null)
                 return BadRequest();
 
-            Project? delete = await _db.Projects.Where(x=>x.ProjectId == id).FirstOrDefaultAsync();
+            Project? delete = await _db.Projects.Where(x => x.ProjectId == id).FirstOrDefaultAsync();
 
-            if(delete != null)
+            if (delete != null)
             {
-                 _db.Projects.Remove(delete);
+                _db.Projects.Remove(delete);
                 await _db.SaveChangesAsync();
             }
             else
@@ -107,25 +108,25 @@ namespace TaskManager.Controllers
             //};
 
             List<Project>? searchResult = null;
-             switch(searchBy)
+            switch (searchBy)
             {
                 case "ProjectId":
                     searchResult = await _db.Projects.Where(x => x.ProjectId.ToString().Contains(searchString)).ToListAsync();
-                        break;
+                    break;
 
                 case "ProjectName":
                     searchResult = await _db.Projects.Where(x => x.ProjectName.Contains(searchString)).ToListAsync();
-                        break;
+                    break;
 
                 case "DateOfStart":
                     searchResult = await _db.Projects.Where(x => x.DateOfStart.ToString().Contains(searchString)).ToListAsync();
-                        break;
+                    break;
 
                 case "TeamSize":
                     searchResult = await _db.Projects.Where(x => x.TeamSize.ToString().Contains(searchString)).ToListAsync();
-                        break;
+                    break;
 
-                default:                    
+                default:
                     break;
             }
 
@@ -140,7 +141,7 @@ namespace TaskManager.Controllers
             {
                 return null;
             }
-            
+
         }
     }
 }

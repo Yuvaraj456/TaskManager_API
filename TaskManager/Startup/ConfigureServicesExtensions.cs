@@ -1,12 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using TaskManager.DatabaseContext;
 using TaskManager.Filters;
 using TaskManager.Identity;
 using TaskManager.Service;
 using TaskManager.ServiceContracts;
+using TaskManager_Core.Service;
+using TaskManager_Core.ServiceContracts;
 
 namespace TaskManager.Startup
 {
@@ -21,7 +26,7 @@ namespace TaskManager.Startup
             {
                 var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
 
-                //options.Filters.Add(new AuthorizeFilter(policy)); //applies all the controllers, if not authenticated not allowed to endpoint
+                options.Filters.Add(new AuthorizeFilter(policy)); //applies all the controllers, if not authenticated not allowed to endpoint
 
                 options.Filters.Add(typeof(GlobalExceptionFilter));
             });
@@ -44,6 +49,8 @@ namespace TaskManager.Startup
 
 
             service.AddTransient<IUserService, UserService>();
+            service.AddTransient<IJwtTokenService, JwtTokenService>();
+
 
 
 
@@ -60,30 +67,30 @@ namespace TaskManager.Startup
                     policybuilder.WithOrigins(configuration.GetSection("AllowOrigins").Get<string[]>())
                     .WithHeaders("Authorization", "origin", "accept", "content-type")
                     .WithMethods("GET", "POST", "PUT", "DELETE");
-                });
+                }); 
             });
 
             //JWT Authentication
-            //service.AddAuthentication(options =>
-            //{
-            //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; //if the authentication is failed
-            //    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;//then validate this authentication
-            //    //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme; //then validate this authentication
-            //})
-            // .AddJwtBearer(options =>
-            // {
-            //     options.TokenValidationParameters = new TokenValidationParameters()
-            //     {
-            //         ValidateAudience = true,
-            //         ValidAudience = builder.Configuration["Jwt:Audience"],
-            //         ValidateIssuer = true,
-            //         ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            //         ValidateLifetime = true, //if token expires it is treated as invalid token, then action method will not execute.
-            //         ValidateIssuerSigningKey = true,
-            //         IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["Key"]))
+            service.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme; //if the authentication is failed
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;//then validate this authentication
+                //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme; //then validate this authentication
+            })
+             .AddJwtBearer(options =>
+             {
+                 options.TokenValidationParameters = new TokenValidationParameters()
+                 {
+                     ValidateAudience = true,
+                     ValidAudience = configuration["Jwt:Audience"],
+                     ValidateIssuer = true,
+                     ValidIssuer = configuration["Jwt:Issuer"],
+                     ValidateLifetime = true, //if token expires it is treated as invalid token, then action method will not execute.
+                     ValidateIssuerSigningKey = true,
+                     IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(configuration["Key"]))
 
-            //     };
-            // });
+                 };
+             });
 
             service.AddAuthorization(options => { });//optional 
 

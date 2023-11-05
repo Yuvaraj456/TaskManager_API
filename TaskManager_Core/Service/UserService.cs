@@ -1,9 +1,11 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.FileProviders;
 using TaskManager.Identity;
 using TaskManager.ServiceContracts;
 using TaskManager.ViewModels;
 using TaskManager_Core.DTO;
+using TaskManager_Core.ServiceContracts;
 
 namespace TaskManager.Service
 {
@@ -13,33 +15,44 @@ namespace TaskManager.Service
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly IJwtTokenService _jwtTokenService;
 
         public UserService()
         {
         }
 
-        public UserService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager)
+        public UserService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, IJwtTokenService jwtTokenService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _jwtTokenService = jwtTokenService;
         }
 
-        public async Task<ApplicationUser> Authenticate(LoginViewModel loginViewModel)
+        public async Task<AuthenticationResponse?> Authenticate(LoginViewModel loginViewModel)
         {
             SignInResult result = await _signInManager.PasswordSignInAsync(loginViewModel.UserName, loginViewModel.Password, false, false);
             if (result.Succeeded)
             {
                 var applicationUser = await _userManager.FindByNameAsync(loginViewModel.UserName);
-                applicationUser.PasswordHash = null;
-                return applicationUser;
+                //applicationUser.PasswordHash = null;
+                if(applicationUser == null)
+                {
+                    return null;  
+                }
+                //signinUser
+                await _signInManager.SignInAsync(applicationUser,false);
+
+                AuthenticationResponse response  = await _jwtTokenService.CreateJwtToken(applicationUser);
+
+                return response;
 
             }
             else
             {
                 return null;
             }
-        }
+            }
 
         public async Task<ApplicationUser> CreateUser(RegisterDTO registerDTO)
         {
