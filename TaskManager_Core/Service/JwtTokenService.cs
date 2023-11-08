@@ -3,7 +3,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
-
+using System.IdentityModel.Tokens;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -34,17 +34,25 @@ namespace TaskManager_Core.Service
             //Create a DateTime object representing the token expiration time by adding the number of minutes specified in the configuration to the current UTC time
             DateTime expirationTime = DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:EXPIRATION_MINUTES"]));
 
+            
+            
             //Create an array of claims objects representing the user's claims such as their ID, name, email, etc.
             Claim[] claims = new Claim[] //Creating claims for Payload
             {
                 new Claim(JwtRegisteredClaimNames.Sub,user.Id.ToString()), //ClaimName -> Subject (user id)
                 new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()), //ClaimName -> JWT unique ID, add newly generated id only
                 new Claim(JwtRegisteredClaimNames.Iat,DateTime.Now.ToString()), //Issued at (date and time of token generation)
-                new Claim(ClaimTypes.NameIdentifier,user.Email), //Unique name identifier of the user(Email)
-                new Claim(ClaimTypes.Name,user.Id.ToString()),//Name of the user
-                new Claim(ClaimTypes.Email, user.Email)
+                new Claim("nameidentifier",user.Email), //Unique name identifier of the user(Email)
+                new Claim("name",user.Id.ToString()),//Name of the user
+                new Claim("email", user.Email),
+                new Claim("role",user.Role), 
 
             };
+
+            
+            
+
+
 
             //Create  a SymmetricSecurityKey object using the key specified in the configuration.
             SymmetricSecurityKey securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Key"]));//secret key supplied here

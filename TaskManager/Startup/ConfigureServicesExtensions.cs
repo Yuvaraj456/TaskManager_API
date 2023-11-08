@@ -21,6 +21,7 @@ namespace TaskManager.Startup
         public static IServiceCollection ConfigureServices(this IServiceCollection service, IConfiguration configuration)
         {
 
+
             // Add services to the container.
             service.AddControllers(options =>
             {
@@ -70,6 +71,9 @@ namespace TaskManager.Startup
                 }); 
             });
 
+            // Avoid claim mapping to old ms soap namespaces. Avoid replace "role" by "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+            //System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
             //JWT Authentication
             service.AddAuthentication(options =>
             {
@@ -87,8 +91,9 @@ namespace TaskManager.Startup
                      ValidIssuer = configuration["Jwt:Issuer"],
                      ValidateLifetime = true, //if token expires it is treated as invalid token, then action method will not execute.
                      ValidateIssuerSigningKey = true,
-                     IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(configuration["Key"]))
-
+                     IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(configuration["Key"])),
+                     //NameClaimType = "name",
+                     //RoleClaimType ="role",                     
                  };
              });
 

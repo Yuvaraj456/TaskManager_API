@@ -12,6 +12,7 @@ using TaskManager.Service;
 using TaskManager.ServiceContracts;
 using TaskManager.DatabaseContext;
 using TaskManager.Startup;
+using IdentityServer3.AccessTokenValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +23,6 @@ builder.Services.ConfigureServices(builder.Configuration);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
 app.UseDeveloperExceptionPage();
 app.UseAuthentication();
 app.UseStaticFiles();
@@ -34,8 +34,7 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
-
+app.MapControllers();   
 
 
 app.Run();

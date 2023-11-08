@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TaskManager.DatabaseContext;
 using TaskManager_Core.Domain.Entities;
+using TaskManager_Core.DTO;
 
 namespace TaskManager.Controllers
 {
@@ -21,22 +22,60 @@ namespace TaskManager.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<List<Project>> Get()
+        public async Task<List<ProjectViewModel>> Get()
         {
-            List<Project> project = await _db.Projects.ToListAsync();
-            return project;
+            System.Threading.Thread.Sleep(1000); //make delay of 1 sec
+            List<Project> project = await _db.Projects.Include("ClientLocation").ToListAsync();
+
+            List<ProjectViewModel> projectViewModel = new List<ProjectViewModel>();
+            foreach (var item in project)
+            {
+                projectViewModel.Add(new ProjectViewModel()
+                {
+                     ProjectId = item.ProjectId,
+                     ClientLocation = item.ClientLocation,
+                     ClientLocationId = item.ClientLocationId,
+                     DateOfStart = item.DateOfStart.ToString("dd/MM/yyyy"),
+                     ProjectName = item.ProjectName,
+                     Status = item.Status,
+                     TeamSize = item.TeamSize,
+                     Active = item.Active,
+                });
+            }
+
+            return projectViewModel;
         }
 
         [HttpPost]
-        [Route("[action]")]
+        [Route("[action]")] 
         public async Task<IActionResult> Post([FromBody] Project project)
         {
             if (project == null)
                 return BadRequest();
 
-            var postdata = await _db.Projects.AddAsync(project);
+            await _db.Projects.AddAsync(project);
             await _db.SaveChangesAsync();
-            return Ok(project);
+
+            Project? addedProject = await _db.Projects.Include("ClientLocation").Where(temp=>temp.ProjectId == project.ProjectId).FirstOrDefaultAsync();
+
+            if (addedProject == null)
+            {
+                return BadRequest("Projects not found");
+            }
+
+            ProjectViewModel projectViewModel = new ProjectViewModel()               
+                {
+                    ProjectId = addedProject.ProjectId,
+                    ClientLocation = addedProject.ClientLocation,
+                    ClientLocationId = addedProject.ClientLocationId,
+                    DateOfStart = addedProject.DateOfStart.ToString("dd/MM/yyyy"),
+                    ProjectName = addedProject.ProjectName,
+                    Status = addedProject.Status,
+                    TeamSize = addedProject.TeamSize,
+                    Active = addedProject.Active,
+                };
+            
+            return Ok(projectViewModel);
         }
 
         [HttpPut]
@@ -53,14 +92,38 @@ namespace TaskManager.Controllers
                 exist.ProjectName = project.ProjectName;
                 exist.DateOfStart = project.DateOfStart;
                 exist.TeamSize = project.TeamSize;
+                exist.Active = project.Active;
+                exist.ClientLocation = project.ClientLocation;
+                exist.Status = project.Status;
+                exist.ClientLocation = null;
                 await _db.SaveChangesAsync();
+
+                Project? existProject = await _db.Projects.Include("ClientLocation").Where(temp => temp.ProjectId == project.ProjectId).FirstOrDefaultAsync();
+
+                if (existProject == null)
+                {
+                    return BadRequest("Projects not found");
+                }
+
+                ProjectViewModel projectViewModel = new ProjectViewModel()
+                {
+                    ProjectId = existProject.ProjectId,
+                    ClientLocation = existProject.ClientLocation,
+                    ClientLocationId = existProject.ClientLocationId,
+                    DateOfStart = existProject.DateOfStart.ToString("dd/MM/yyyy"),
+                    ProjectName = existProject.ProjectName,
+                    Status = existProject.Status,
+                    TeamSize = existProject.TeamSize,
+                    Active = existProject.Active,
+                };
+
+                return Ok(projectViewModel);
             }
             else
             {
                 return BadRequest();
             }
-
-            return Ok(exist);
+            
         }
 
         [HttpDelete]
@@ -87,7 +150,7 @@ namespace TaskManager.Controllers
 
         [HttpGet]
         [Route("[action]/{searchBy}/{searchString?}")]
-        public async Task<List<Project>> Search([FromRoute] string? searchBy, [FromRoute] string? searchString)
+        public async Task<List<ProjectViewModel>> Search([FromRoute] string? searchBy, [FromRoute] string? searchString)
         {
             if (searchBy == null)
                 return null;
@@ -111,19 +174,19 @@ namespace TaskManager.Controllers
             switch (searchBy)
             {
                 case "ProjectId":
-                    searchResult = await _db.Projects.Where(x => x.ProjectId.ToString().Contains(searchString)).ToListAsync();
+                    searchResult = await _db.Projects.Include("ClientLocation").Where(x => x.ProjectId.ToString().Contains(searchString)).ToListAsync();
                     break;
 
                 case "ProjectName":
-                    searchResult = await _db.Projects.Where(x => x.ProjectName.Contains(searchString)).ToListAsync();
+                    searchResult = await _db.Projects.Include("ClientLocation").Where(x => x.ProjectName.Contains(searchString)).ToListAsync();
                     break;
 
                 case "DateOfStart":
-                    searchResult = await _db.Projects.Where(x => x.DateOfStart.ToString().Contains(searchString)).ToListAsync();
+                    searchResult = await _db.Projects.Include("ClientLocation").Where(x => x.DateOfStart.ToString().Contains(searchString)).ToListAsync();
                     break;
 
                 case "TeamSize":
-                    searchResult = await _db.Projects.Where(x => x.TeamSize.ToString().Contains(searchString)).ToListAsync();
+                    searchResult = await _db.Projects.Include("ClientLocation").Where(x => x.TeamSize.ToString().Contains(searchString)).ToListAsync();
                     break;
 
                 default:
@@ -135,7 +198,23 @@ namespace TaskManager.Controllers
 
             if (searchResult != null)
             {
-                return searchResult;
+                List<ProjectViewModel> projectViewModel = new List<ProjectViewModel>();
+                foreach (var item in searchResult)
+                {
+                    projectViewModel.Add(new ProjectViewModel()
+                    {
+                        ProjectId = item.ProjectId,
+                        ClientLocation = item.ClientLocation,
+                        ClientLocationId = item.ClientLocationId,
+                        DateOfStart = item.DateOfStart.ToString("dd/MM/yyyy"),
+                        ProjectName = item.ProjectName,
+                        Status = item.Status,
+                        TeamSize = item.TeamSize,
+                        Active = item.Active,
+                    });
+                }
+
+                return projectViewModel;
             }
             else
             {

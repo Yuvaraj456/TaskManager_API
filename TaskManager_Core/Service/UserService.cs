@@ -40,6 +40,15 @@ namespace TaskManager.Service
                 {
                     return null;  
                 }
+
+                if(await _userManager.IsInRoleAsync(applicationUser, "Admin"))
+                {
+                    applicationUser.Role = "Admin";
+                }
+                else if(await _userManager.IsInRoleAsync(applicationUser, "Employee"))
+                {
+                    applicationUser.Role = "Employee";
+                }
                 //signinUser
                 await _signInManager.SignInAsync(applicationUser,false);
 
@@ -73,13 +82,13 @@ namespace TaskManager.Service
                 //signIn user
                 await _signInManager.SignInAsync(applicationUser, isPersistent: false);
 
-                bool roleExist = await _roleManager.RoleExistsAsync("Employee");
+                bool roleExist = await _roleManager.RoleExistsAsync("Admin");
 
                 if(!roleExist)
                 {
                     ApplicationRole applicationRole = new ApplicationRole()
                     {
-                        Name = "Employee"
+                        Name = "Admin"
                     };
                     IdentityResult createRole = await _roleManager.CreateAsync(applicationRole);
                 }

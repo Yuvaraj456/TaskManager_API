@@ -12,8 +12,8 @@ using TaskManager.DatabaseContext;
 namespace TaskManager_Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231028153455_drop")]
-    partial class drop
+    [Migration("20231107125627_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -226,6 +226,87 @@ namespace TaskManager_Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("TaskManager_Core.Domain.Entities.ClientLocation", b =>
+                {
+                    b.Property<int>("ClientLocationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClientLocationId"));
+
+                    b.Property<string>("ClientLocationName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ClientLocationId");
+
+                    b.ToTable("ClientLocations");
+
+                    b.HasData(
+                        new
+                        {
+                            ClientLocationId = 1,
+                            ClientLocationName = "Boston"
+                        },
+                        new
+                        {
+                            ClientLocationId = 2,
+                            ClientLocationName = "New Delhi"
+                        },
+                        new
+                        {
+                            ClientLocationId = 3,
+                            ClientLocationName = "New Jercy"
+                        },
+                        new
+                        {
+                            ClientLocationId = 4,
+                            ClientLocationName = "New York"
+                        },
+                        new
+                        {
+                            ClientLocationId = 5,
+                            ClientLocationName = "London"
+                        },
+                        new
+                        {
+                            ClientLocationId = 6,
+                            ClientLocationName = "Tokyo"
+                        });
+                });
+
+            modelBuilder.Entity("TaskManager_Core.Domain.Entities.Project", b =>
+                {
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ClientLocationId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DateOfStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ProjectName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TeamSize")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProjectId");
+
+                    b.HasIndex("ClientLocationId");
+
+                    b.ToTable("Projects");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("TaskManager.Identity.ApplicationRole", null)
@@ -275,6 +356,17 @@ namespace TaskManager_Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TaskManager_Core.Domain.Entities.Project", b =>
+                {
+                    b.HasOne("TaskManager_Core.Domain.Entities.ClientLocation", "ClientLocation")
+                        .WithMany()
+                        .HasForeignKey("ClientLocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ClientLocation");
                 });
 #pragma warning restore 612, 618
         }

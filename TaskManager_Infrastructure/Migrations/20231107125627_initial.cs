@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace TaskManager_Infrastructure.Migrations
 {
     /// <inheritdoc />
@@ -53,18 +55,16 @@ namespace TaskManager_Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Projects",
+                name: "ClientLocations",
                 columns: table => new
                 {
-                    ProjectId = table.Column<int>(type: "int", nullable: false)
+                    ClientLocationId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ProjectName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateOfStart = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TeamSize = table.Column<int>(type: "int", nullable: false)
+                    ClientLocationName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Projects", x => x.ProjectId);
+                    table.PrimaryKey("PK_ClientLocations", x => x.ClientLocationId);
                 });
 
             migrationBuilder.CreateTable(
@@ -173,6 +173,42 @@ namespace TaskManager_Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    ProjectId = table.Column<int>(type: "int", nullable: false),
+                    ProjectName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateOfStart = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TeamSize = table.Column<int>(type: "int", nullable: false),
+                    Active = table.Column<bool>(type: "bit", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClientLocationId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.ProjectId);
+                    table.ForeignKey(
+                        name: "FK_Projects_ClientLocations_ClientLocationId",
+                        column: x => x.ClientLocationId,
+                        principalTable: "ClientLocations",
+                        principalColumn: "ClientLocationId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "ClientLocations",
+                columns: new[] { "ClientLocationId", "ClientLocationName" },
+                values: new object[,]
+                {
+                    { 1, "Boston" },
+                    { 2, "New Delhi" },
+                    { 3, "New Jercy" },
+                    { 4, "New York" },
+                    { 5, "London" },
+                    { 6, "Tokyo" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -211,6 +247,11 @@ namespace TaskManager_Infrastructure.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_ClientLocationId",
+                table: "Projects",
+                column: "ClientLocationId");
         }
 
         /// <inheritdoc />
@@ -239,6 +280,9 @@ namespace TaskManager_Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "ClientLocations");
         }
     }
 }
