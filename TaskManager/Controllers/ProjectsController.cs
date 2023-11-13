@@ -35,7 +35,7 @@ namespace TaskManager.Controllers
                      ProjectId = item.ProjectId,
                      ClientLocation = item.ClientLocation,
                      ClientLocationId = item.ClientLocationId,
-                     DateOfStart = item.DateOfStart.ToString("dd/MM/yyyy"),
+                     DateOfStart = item.DateOfStart,
                      ProjectName = item.ProjectName,
                      Status = item.Status,
                      TeamSize = item.TeamSize,
@@ -53,6 +53,7 @@ namespace TaskManager.Controllers
             if (project == null)
                 return BadRequest();
 
+            project.ClientLocation = null;
             await _db.Projects.AddAsync(project);
             await _db.SaveChangesAsync();
 
@@ -68,7 +69,7 @@ namespace TaskManager.Controllers
                     ProjectId = addedProject.ProjectId,
                     ClientLocation = addedProject.ClientLocation,
                     ClientLocationId = addedProject.ClientLocationId,
-                    DateOfStart = addedProject.DateOfStart.ToString("dd/MM/yyyy"),
+                    DateOfStart = addedProject.DateOfStart,
                     ProjectName = addedProject.ProjectName,
                     Status = addedProject.Status,
                     TeamSize = addedProject.TeamSize,
@@ -83,8 +84,7 @@ namespace TaskManager.Controllers
         public async Task<IActionResult> Put([FromBody] Project project)
         {
             if (project == null)
-                return BadRequest();
-
+                return BadRequest();       
             Project? exist = await _db.Projects.Where(x => x.ProjectId == project.ProjectId).FirstOrDefaultAsync();
 
             if (exist != null)
@@ -93,7 +93,7 @@ namespace TaskManager.Controllers
                 exist.DateOfStart = project.DateOfStart;
                 exist.TeamSize = project.TeamSize;
                 exist.Active = project.Active;
-                exist.ClientLocation = project.ClientLocation;
+                exist.ClientLocationId = project.ClientLocationId;
                 exist.Status = project.Status;
                 exist.ClientLocation = null;
                 await _db.SaveChangesAsync();
@@ -110,7 +110,7 @@ namespace TaskManager.Controllers
                     ProjectId = existProject.ProjectId,
                     ClientLocation = existProject.ClientLocation,
                     ClientLocationId = existProject.ClientLocationId,
-                    DateOfStart = existProject.DateOfStart.ToString("dd/MM/yyyy"),
+                    DateOfStart = existProject.DateOfStart,
                     ProjectName = existProject.ProjectName,
                     Status = existProject.Status,
                     TeamSize = existProject.TeamSize,
@@ -189,6 +189,14 @@ namespace TaskManager.Controllers
                     searchResult = await _db.Projects.Include("ClientLocation").Where(x => x.TeamSize.ToString().Contains(searchString)).ToListAsync();
                     break;
 
+                case "ClientLocation":
+                    searchResult = await _db.Projects.Include("ClientLocation").Where(x => x.ClientLocation.ClientLocationName.Contains(searchString)).ToListAsync();
+                    break;
+
+                case "Status":
+                    searchResult = await _db.Projects.Include("ClientLocation").Where(x => x.Status.Contains(searchString)).ToListAsync();
+                    break;
+
                 default:
                     break;
             }
@@ -206,7 +214,7 @@ namespace TaskManager.Controllers
                         ProjectId = item.ProjectId,
                         ClientLocation = item.ClientLocation,
                         ClientLocationId = item.ClientLocationId,
-                        DateOfStart = item.DateOfStart.ToString("dd/MM/yyyy"),
+                        DateOfStart = item.DateOfStart,
                         ProjectName = item.ProjectName,
                         Status = item.Status,
                         TeamSize = item.TeamSize,
@@ -220,6 +228,25 @@ namespace TaskManager.Controllers
             {
                 return null;
             }
+
+        }
+
+        [HttpGet("[action]/{projectId}")]
+        public async Task<IActionResult> GetProjectByProjectId([FromRoute]int projectId)
+        {
+            if (projectId == null)
+                return BadRequest("project id is null from GetProjectByProjectId");
+
+            Project? project = await _db.Projects.Include("ClientLocation").Where(x => x.ProjectId == projectId).FirstOrDefaultAsync();
+
+            if (project != null)
+            {
+                var projectViewModel = new ProjectViewModel() { ProjectId = project.ProjectId, Active = project.Active, ClientLocation = project.ClientLocation, ClientLocationId = project.ClientLocationId, DateOfStart = project.DateOfStart, ProjectName = project.ProjectName, Status = project.Status, TeamSize = project.TeamSize };
+
+                return Ok(projectViewModel);
+            }
+
+            return NoContent();
 
         }
     }

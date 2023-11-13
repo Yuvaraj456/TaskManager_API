@@ -17,6 +17,7 @@ namespace TaskManager.DatabaseContext
         public DbSet<ClientLocation> ClientLocations { get; set; }
 
 
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

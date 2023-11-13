@@ -82,13 +82,13 @@ namespace TaskManager.Service
                 //signIn user
                 await _signInManager.SignInAsync(applicationUser, isPersistent: false);
 
-                bool roleExist = await _roleManager.RoleExistsAsync("Admin");
+                bool roleExist = await _roleManager.RoleExistsAsync("Employee");
 
                 if(!roleExist)
                 {
                     ApplicationRole applicationRole = new ApplicationRole()
                     {
-                        Name = "Admin"
+                        Name = "Employee"
                     };
                     IdentityResult createRole = await _roleManager.CreateAsync(applicationRole);
                 }

@@ -13,7 +13,7 @@ namespace TaskManager_Core.Domain.Entities
         [DisplayFormat(DataFormatString = "d/M/yyyy")]
         public DateTime DateOfStart { get; set; }
 
-        public int TeamSize { get; set; }
+        public int? TeamSize { get; set; }
 
         public bool Active { get; set; }
 
@@ -22,7 +22,7 @@ namespace TaskManager_Core.Domain.Entities
         public int ClientLocationId { get; set; }
 
         [ForeignKey("ClientLocationId")]
-        public virtual ClientLocation ClientLocation { get; set; }
+        public virtual ClientLocation? ClientLocation { get; set; }
 
     }
 
