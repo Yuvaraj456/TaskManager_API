@@ -36,7 +36,7 @@ namespace TaskManager_UI.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<ActionResult<ApplicationUser>> PostRegister([FromBody] RegisterDTO registerDTO)
+        public async Task<IActionResult> PostRegister([FromBody] SignUpViewModel signUpViewModel)
         {
             //validation
             if (!ModelState.IsValid)
@@ -44,25 +44,25 @@ namespace TaskManager_UI.Controllers
                 string ErrorMessage = string.Join("|", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
 
                 return Problem(ErrorMessage);
-            }
+            }          
 
-
-            ApplicationUser applicationUser = new ApplicationUser()
+            AuthenticationResponse result = await _userService.Register(signUpViewModel);
+             
+           if(result == null)
             {
-                Email = registerDTO.Email,
-                UserName = registerDTO.Email,                
-                PhoneNumber = registerDTO.PhoneNumber,
-            };
-
-            ApplicationUser result = await _userService.CreateUser(registerDTO);
-
-           if(result== null)
-            {
-                BadRequest("invalid UserName and Password");
+                BadRequest("invalid data");
             }
           
-             return Ok(applicationUser);
+             return Ok(result);
             
+        }
+
+        [HttpGet("[action]/{email}")]
+        public async Task<ActionResult<ApplicationUser>> GetUserByEmail([FromRoute]string email) 
+        {
+            ApplicationUser? user = await _userService.GetUserByEmailService(email);          
+
+            return Ok(user);
         }
     }
 }

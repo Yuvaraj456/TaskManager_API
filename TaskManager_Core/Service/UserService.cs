@@ -4,6 +4,8 @@ using Microsoft.Extensions.FileProviders;
 using TaskManager.Identity;
 using TaskManager.ServiceContracts;
 using TaskManager.ViewModels;
+using TaskManager_Core.Domain.Entities;
+using TaskManager_Core.Domain.RepositoryContracts;
 using TaskManager_Core.DTO;
 using TaskManager_Core.ServiceContracts;
 
@@ -16,17 +18,19 @@ namespace TaskManager.Service
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IJwtTokenService _jwtTokenService;
+        private readonly IUserRepository  _userRepositoty;
 
         public UserService()
         {
         }
 
-        public UserService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, IJwtTokenService jwtTokenService)
+        public UserService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, IJwtTokenService jwtTokenService, IUserRepository userRepository)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _jwtTokenService = jwtTokenService;
+            _userRepositoty = userRepository;
         }
 
         public async Task<AuthenticationResponse?> Authenticate(LoginViewModel loginViewModel)
@@ -63,43 +67,77 @@ namespace TaskManager.Service
             }
             }
 
-        public async Task<ApplicationUser> CreateUser(RegisterDTO registerDTO)
+       
+        public async Task<AuthenticationResponse> Register(SignUpViewModel signUpViewModel)
         {
-            if (registerDTO == null)
+            if (signUpViewModel == null)
                 return null;
 
             ApplicationUser applicationUser = new ApplicationUser()
             {
-                Email = registerDTO.Email,
-                UserName = registerDTO.Email,
-                PhoneNumber = registerDTO.PhoneNumber,
+                FirstName = signUpViewModel.PersonName.FirstName,
+                LastName = signUpViewModel.PersonName.LastName,
+                Email = signUpViewModel.Email,
+                PhoneNumber = signUpViewModel.Mobile,
+                ReceivesNewsLetter = signUpViewModel.ReceivesNewsLetter,
+                CountryId = signUpViewModel.CountryId,
+                Role = "Admin",
+                DateOfBirth = Convert.ToDateTime(signUpViewModel.DateOfBirth),
+                Gender = signUpViewModel.Gender,
+                UserName = signUpViewModel.Email,
+                
             };
 
-            IdentityResult result = await _userManager.CreateAsync(applicationUser, registerDTO.Password);
+            IdentityResult result = await _userManager.CreateAsync(applicationUser, signUpViewModel.Password);
 
             if (result.Succeeded)
             {
                 //signIn user
-                await _signInManager.SignInAsync(applicationUser, isPersistent: false);
+               SignInResult signInResult =  await _signInManager.PasswordSignInAsync(applicationUser,signUpViewModel.Password, isPersistent: false,lockoutOnFailure:false);
 
-                bool roleExist = await _roleManager.RoleExistsAsync("Employee");
-
-                if(!roleExist)
+                if (signInResult.Succeeded)
                 {
-                    ApplicationRole applicationRole = new ApplicationRole()
+                    //applicationUser.PasswordHash = null;
+
+                    AuthenticationResponse response = await _jwtTokenService.CreateJwtToken(applicationUser);
+                    
+                    List<Skill> skills = new List<Skill>();
+                    foreach(var item in signUpViewModel.Skills)
                     {
-                        Name = "Employee"
-                    };
-                    IdentityResult createRole = await _roleManager.CreateAsync(applicationRole);
+                        Skill skill = new Skill() { 
+                             Id = applicationUser.Id,
+                             SkillId = item.SkillId,
+                             SkillLevel = item.SkillLevel,
+                             SkillName = item.SkillName,                                
+                        };
+
+                        skills.Add(skill);
+                    }
+
+                    await _userRepositoty.AddSkills(skills);
+
+                    return response;
                 }
 
-                IdentityResult role = await _userManager.AddToRoleAsync(applicationUser, "Employee");
-                return applicationUser;
-            }
-
+            }               
 
             return null;
            
         }
+
+        public async Task<ApplicationUser?> GetUserByEmailService(string email)
+        {
+            if (email == null)
+                return null;
+
+           ApplicationUser? user = await _userManager.FindByEmailAsync(email);
+           
+            if(user == null) 
+                return null;
+
+            return user;
+
+        }
+
     }
 }

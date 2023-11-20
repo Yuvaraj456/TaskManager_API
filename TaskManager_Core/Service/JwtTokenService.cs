@@ -70,7 +70,7 @@ namespace TaskManager_Core.Service
             //Create and return an AuthenticationResponse object containing the token, user email, user name, and token expiration time.
             return new AuthenticationResponse()
             {
-                Token = token,
+                Token = token, 
                 Email = user.Email,
                 Expiration = expirationTime,
                 //RefreshToken = GenerateRefreshToken(),

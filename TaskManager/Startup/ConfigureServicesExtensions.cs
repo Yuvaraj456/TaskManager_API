@@ -10,8 +10,10 @@ using TaskManager.Filters;
 using TaskManager.Identity;
 using TaskManager.Service;
 using TaskManager.ServiceContracts;
+using TaskManager_Core.Domain.RepositoryContracts;
 using TaskManager_Core.Service;
 using TaskManager_Core.ServiceContracts;
+using TaskManager_Infrastructure.Repository;
 
 namespace TaskManager.Startup
 {
@@ -48,7 +50,7 @@ namespace TaskManager.Startup
             .AddUserStore<UserStore<ApplicationUser, ApplicationRole, ApplicationDbContext, int>>()//identityUser Store added here!
             .AddRoleStore<RoleStore<ApplicationRole, ApplicationDbContext, int>>();//identityRole Store added here!
 
-
+            service.AddTransient<IUserRepository, UserRepository>();
             service.AddTransient<IUserService, UserService>();
             service.AddTransient<IJwtTokenService, JwtTokenService>();
 

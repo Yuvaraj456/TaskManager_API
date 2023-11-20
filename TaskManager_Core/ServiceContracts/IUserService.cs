@@ -8,6 +8,8 @@ namespace TaskManager.ServiceContracts
     {
         Task<AuthenticationResponse?> Authenticate(LoginViewModel loginViewModel);
 
-        Task<ApplicationUser> CreateUser(RegisterDTO registerDTO);
+        Task<AuthenticationResponse> Register(SignUpViewModel signUpViewModel);
+
+        Task<ApplicationUser?> GetUserByEmailService(string email);
     }
 }
