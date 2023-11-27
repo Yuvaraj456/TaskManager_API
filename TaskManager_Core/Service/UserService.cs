@@ -31,7 +31,7 @@ namespace TaskManager.Service
             _roleManager = roleManager;
             _jwtTokenService = jwtTokenService;
             _userRepositoty = userRepository;
-        }
+        } 
 
         public async Task<AuthenticationResponse?> Authenticate(LoginViewModel loginViewModel)
         {
@@ -44,15 +44,16 @@ namespace TaskManager.Service
                 {
                     return null;  
                 }
+                applicationUser.Role = "Admin";
 
-                if(await _userManager.IsInRoleAsync(applicationUser, "Admin"))
-                {
-                    applicationUser.Role = "Admin";
-                }
-                else if(await _userManager.IsInRoleAsync(applicationUser, "Employee"))
-                {
-                    applicationUser.Role = "Employee";
-                }
+                //if(await _userManager.IsInRoleAsync(applicationUser, "Admin"))
+                //{
+                //    applicationUser.Role = "Admin";
+                //}
+                //else if(await _userManager.IsInRoleAsync(applicationUser, "Employee"))
+                //{
+                //    applicationUser.Role = "Employee";
+                //}
                 //signinUser
                 await _signInManager.SignInAsync(applicationUser,false);
 

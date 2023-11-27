@@ -26,7 +26,7 @@ namespace TaskManager_Core.DTO
         public string CountryId { get; set; }
 
         public bool ReceivesNewsLetter { get; set; }
-
+         
         public List<Skill> Skills { get; set; }
             
     }

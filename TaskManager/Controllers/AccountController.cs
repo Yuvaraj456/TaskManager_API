@@ -36,10 +36,10 @@ namespace TaskManager_UI.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> PostRegister([FromBody] SignUpViewModel signUpViewModel)
+        public async Task<IActionResult> PostRegister([FromBody] SignUpViewModel signUpViewModel) 
         {
             //validation
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid) 
             {
                 string ErrorMessage = string.Join("|", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
 
@@ -59,7 +59,7 @@ namespace TaskManager_UI.Controllers
 
         [HttpGet("[action]/{email}")]
         public async Task<ActionResult<ApplicationUser>> GetUserByEmail([FromRoute]string email) 
-        {
+       {
             ApplicationUser? user = await _userService.GetUserByEmailService(email);          
 
             return Ok(user);
