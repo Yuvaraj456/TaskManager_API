@@ -1,25 +1,40 @@
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using TaskManager.Filters;
+using TaskManager.Identity;
+using TaskManager.Service;
+using TaskManager.ServiceContracts;
 using TaskManager.DatabaseContext;
+using TaskManager.Startup;
+using IdentityServer3.AccessTokenValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+//services are in the separate static class file
+builder.Services.ConfigureServices(builder.Configuration);
 
-builder.Services.AddControllers();
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
+app.UseDeveloperExceptionPage();
+app.UseAuthentication();
+app.UseStaticFiles();
+app.UseCors();
+app.UseStaticFiles();
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers();   
+
 
 app.Run();
