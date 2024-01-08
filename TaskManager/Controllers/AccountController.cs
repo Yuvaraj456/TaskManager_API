@@ -25,6 +25,9 @@ namespace TaskManager_UI.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Authenticate([FromBody]LoginViewModel login)
         {
+            if (login == null)
+                return BadRequest("User Name & Password is Null");
+
             var user = await _userService.Authenticate(login);
              
             if(user == null)

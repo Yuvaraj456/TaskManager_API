@@ -81,7 +81,7 @@ namespace TaskManager.Service
                 Email = signUpViewModel.Email,
                 PhoneNumber = signUpViewModel.Mobile,
                 ReceivesNewsLetter = signUpViewModel.ReceivesNewsLetter,
-                CountryId = signUpViewModel.CountryId,
+                CountryId = signUpViewModel.CountryId, 
                 Role = "Admin",
                 DateOfBirth = Convert.ToDateTime(signUpViewModel.DateOfBirth),
                 Gender = signUpViewModel.Gender,
