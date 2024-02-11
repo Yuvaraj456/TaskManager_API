@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManager.DatabaseContext;
 
@@ -11,9 +12,11 @@ using TaskManager.DatabaseContext;
 namespace TaskManager_Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240211082445_droptask")]
+    partial class droptask
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1334,89 +1337,6 @@ namespace TaskManager_Infrastructure.Migrations
                     b.HasIndex("Id");
 
                     b.ToTable("Skills");
-                });
-
-            modelBuilder.Entity("TaskManager_Core.Domain.Entities.TaskPriority", b =>
-                {
-                    b.Property<int>("TaskPriorityId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TaskPriorityId"));
-
-                    b.Property<string>("TaskPriorityName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("TaskPriorityId");
-
-                    b.ToTable("TaskPriorities");
-
-                    b.HasData(
-                        new
-                        {
-                            TaskPriorityId = 1,
-                            TaskPriorityName = "Urgent"
-                        },
-                        new
-                        {
-                            TaskPriorityId = 2,
-                            TaskPriorityName = "Normal"
-                        },
-                        new
-                        {
-                            TaskPriorityId = 3,
-                            TaskPriorityName = "Below Normal"
-                        },
-                        new
-                        {
-                            TaskPriorityId = 4,
-                            TaskPriorityName = "Low"
-                        });
-                });
-
-            modelBuilder.Entity("TaskManager_Core.Domain.Entities.TaskStatus", b =>
-                {
-                    b.Property<int>("TaskStatusId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TaskStatusId"));
-
-                    b.Property<string>("TaskStatusName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("TaskStatusId");
-
-                    b.ToTable("TaskStatus");
-
-                    b.HasData(
-                        new
-                        {
-                            TaskStatusId = 1,
-                            TaskStatusName = "Holding"
-                        },
-                        new
-                        {
-                            TaskStatusId = 2,
-                            TaskStatusName = "Prioritized"
-                        },
-                        new
-                        {
-                            TaskStatusId = 3,
-                            TaskStatusName = "Started"
-                        },
-                        new
-                        {
-                            TaskStatusId = 4,
-                            TaskStatusName = "Finished"
-                        },
-                        new
-                        {
-                            TaskStatusId = 5,
-                            TaskStatusName = "Reverted"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

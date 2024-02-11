@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Filters;
 using TaskManager.Identity;
-using TaskManager.Service;
+using TaskManager.Service; 
 using TaskManager.ServiceContracts;
 using TaskManager.DatabaseContext;
 using TaskManager.Startup;

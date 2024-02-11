@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Reflection.Emit;
 using TaskManager.Identity;
 using TaskManager_Core.Domain.Entities;
-
+using Model = TaskManager_Core.Domain.Entities;
 namespace TaskManager.DatabaseContext
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, int>
@@ -18,6 +18,8 @@ namespace TaskManager.DatabaseContext
         public DbSet<ClientLocation> ClientLocations { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Skill> Skills { get; set; }
+        public DbSet<TaskPriority> TaskPriorities { get; set; }
+        public DbSet<TaskManager_Core.Domain.Entities.TaskStatus> TaskStatus { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -27,6 +29,20 @@ namespace TaskManager.DatabaseContext
                 .Property(c => c.ProjectId)
                 .ValueGeneratedNever();
 
+            builder.Entity<TaskPriority>().HasData(
+                new TaskPriority() { TaskPriorityId = 1, TaskPriorityName = "Urgent" },
+                new TaskPriority() { TaskPriorityId = 2, TaskPriorityName = "Normal" },
+                new TaskPriority() { TaskPriorityId = 3, TaskPriorityName = "Below Normal" },
+                new TaskPriority() { TaskPriorityId = 4, TaskPriorityName = "Low" }
+                );
+
+            builder.Entity<Model.TaskStatus>().HasData(
+               new Model.TaskStatus() { TaskStatusId = 1, TaskStatusName = "Holding" }, //Tasks that need to be documented still
+               new Model.TaskStatus() { TaskStatusId = 2, TaskStatusName = "Prioritized" },//Tasks that are placed in priority order; so need to start ASAP
+               new Model.TaskStatus() { TaskStatusId = 3, TaskStatusName = "Started" },//Tasks that are currently working
+               new Model.TaskStatus() { TaskStatusId = 4, TaskStatusName = "Finished" },//Tasks that are finished working
+               new Model.TaskStatus() { TaskStatusId = 5, TaskStatusName = "Reverted" }//Tasks that are reverted back, with comments or issues
+               );
 
             builder.Entity<ClientLocation>().HasData(
                 new ClientLocation() { ClientLocationId = 1, ClientLocationName = "Boston" },

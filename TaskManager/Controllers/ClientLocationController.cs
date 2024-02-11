@@ -18,7 +18,7 @@ namespace TaskManager_UI.Controllers
         }
 
 
-        [HttpGet("get")]
+        [HttpGet("[action]")]
         public async Task<ActionResult<List<ClientLocation>>> Get()
         {
 
@@ -26,5 +26,70 @@ namespace TaskManager_UI.Controllers
             return locations;
         }
 
+
+
+        [HttpGet("[action]/{clientLocationId}")]
+        public async Task<IActionResult> GetByClientLocationId([FromRoute] int clientLocationId)
+        {
+            ClientLocation? clientLocation = await _db.ClientLocations.FirstOrDefaultAsync(x => x.ClientLocationId == clientLocationId);
+
+            if (clientLocation != null)
+                return Ok(clientLocation);
+
+            return BadRequest($"country not found, for this country Id - {clientLocationId}");
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> AddClientLocation([FromBody] ClientLocation clientLocation)
+        {
+            if (clientLocation == null)
+                return BadRequest("ClientLocation Object is empty");
+
+            ClientLocation? location = await _db.ClientLocations.FirstOrDefaultAsync(x => x.ClientLocationName == clientLocation.ClientLocationName);
+
+            if (location != null)
+                return BadRequest($"ClientLocation already exist - {clientLocation.ClientLocationName}");
+
+            await _db.ClientLocations.AddAsync(clientLocation);
+            await _db.SaveChangesAsync();
+
+            return Ok(clientLocation);
+        }
+
+        [HttpPut("[action]")]
+        public async Task<IActionResult> UpdateClientLocation([FromBody] ClientLocation clientLocation)
+        {
+            if (clientLocation == null)
+                return BadRequest("ClientLocation Object is empty");
+
+            ClientLocation? location = await _db.ClientLocations.FirstOrDefaultAsync(x => x.ClientLocationId == clientLocation.ClientLocationId);
+
+            if (location == null)
+                return BadRequest($"ClientLocation not exist, unable to update - {clientLocation.ClientLocationName}");
+
+            //update
+            location.ClientLocationName = clientLocation.ClientLocationName;
+            await _db.SaveChangesAsync();
+
+            return Ok(clientLocation);
+        }
+
+        [HttpDelete("[action]/{clientLocationId}")]
+        public async Task<IActionResult> DeleteClientLocation([FromRoute] int clientLocationId)
+        {
+            if (clientLocationId == 0)
+                return BadRequest("ClientLocationId is empty");
+
+            ClientLocation? clientLocation = await _db.ClientLocations.FirstOrDefaultAsync(x => x.ClientLocationId == clientLocationId);
+
+            if (clientLocation == null)
+                return BadRequest($"ClientLocation not exist, unable to delete - {clientLocationId}");
+
+            //delete
+            _db.ClientLocations.Remove(clientLocation);
+            await _db.SaveChangesAsync();
+
+            return Ok(true);
+        }
     }
 }
