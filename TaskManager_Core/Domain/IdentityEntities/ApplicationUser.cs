@@ -24,5 +24,9 @@ namespace TaskManager.Identity
 
         public bool ReceivesNewsLetter { get; set; }
 
+        public string? RefreshToken { get; set; }
+
+        public DateTime RefreshTokenExpirationDateTime { get; set; }
+
     }
 }

@@ -72,9 +72,10 @@ namespace TaskManager_Core.Service
             {
                 Token = token, 
                 Email = user.Email,
+                Role = user.Role,
                 Expiration = expirationTime,
-                //RefreshToken = GenerateRefreshToken(),
-                //RefreshTokenExpirationDateTime = DateTime.Now.AddMinutes(Convert.ToInt32(_configuration["RefreshToken:EXPIRATION_MINUTES"]))
+                RefreshToken = GenerateRefreshToken(),
+                RefreshTokenExpirationDateTime = DateTime.Now.AddMinutes(Convert.ToInt32(_configuration["RefreshToken:EXPIRATION_MINUTES"]))
             };
         }
 

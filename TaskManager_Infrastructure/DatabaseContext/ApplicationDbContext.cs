@@ -20,6 +20,9 @@ namespace TaskManager.DatabaseContext
         public DbSet<Skill> Skills { get; set; }
         public DbSet<TaskPriority> TaskPriorities { get; set; }
         public DbSet<TaskManager_Core.Domain.Entities.TaskStatus> TaskStatus { get; set; }
+        public DbSet<TaskManager_Core.Domain.Entities.Task> Tasks { get; set; }
+        public DbSet<TaskStatusDetail> TaskStatusDetails { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

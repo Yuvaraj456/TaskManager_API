@@ -22,6 +22,7 @@ namespace TaskManager_UI.Controllers
 
 
         [HttpGet("[action]")]
+        [AllowAnonymous]
         public async Task<List<Country>> GetCountries()
         {
             List<Country> countries = await _db.Countries.OrderBy(x=>x.CountryName).ToListAsync();

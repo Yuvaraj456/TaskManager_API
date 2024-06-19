@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using IdentityModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TaskManager.Identity;
+using TaskManager.Service;
 using TaskManager.ServiceContracts;
 using TaskManager.ViewModels;
+using TaskManager_Core.Domain.Entities;
 using TaskManager_Core.DTO;
 
 namespace TaskManager_UI.Controllers
@@ -66,6 +70,22 @@ namespace TaskManager_UI.Controllers
             ApplicationUser? user = await _userService.GetUserByEmailService(email);          
 
             return Ok(user);
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> GenerateNewJWTbyRT([FromBody] TokenModel token)
+        {
+            if (token == null)
+                return BadRequest("Invalid client request");
+
+            AuthenticationResponse? authResponse = await _userService.GenerateNewAccessToken(token);
+
+            if (authResponse == null)
+            {
+                BadRequest("invalid jwt access token, login again");
+            }            
+
+            return Ok(authResponse);
         }
     }
 }
